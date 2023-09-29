@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <title>File Host</title>
+  </head>
+  <body>
+    <h1>File Host</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <label for="file">Select File:</label>
+      <input type="file" id="file" name="file"><br><br>
+      <label for="password">Enter Password:</label>
+      <input type="password" id="password" name="password"><br><br>
+      <label for="title">Enter Title:</label>
+      <input type="text" id="title" name="title"><br><br>
+      <label for="description">Enter Description:</label>
+      <textarea id="description" name="description"></textarea><br><br>
+      <button type="submit">Upload</button>
+    </form>
+    <div id="discord-embed"></div>
+    <script>
+      // Get the form data when the form is submitted
+      const formData = new FormData(event.target);
+      
+      // Upload the file to the server
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        // Generate the Discord embed
+        const embed = {
+          title: data.title,
+          description: data.description,
+          images: [
+            {
+              url: URL.createObjectURL(data.file),
+              width: 800,
+              height: 600
+            }
+          ]
+        };
+        
+        // Display the Discord embed
+        document.getElementById('discord-embed').innerHTML = JSON.stringify(embed);
+      });
+    </script>
+  </body>
+</html>
