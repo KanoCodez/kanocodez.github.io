@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Countdowns</title>
+    <style>
+        .body {
+            background-color: #464646;
+        }
+        .countdown {
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .countdown h2 {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .countdown p {
+            margin: 5px;
+            font-size: 20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown">
+        <h2>December 20th</h2>
+        <p id="countdown1"></p>
+    </div>
+
+    <div class="countdown">
+        <h2>December 24th</h2>
+        <p id="countdown2"></p>
+    </div>
+
+    <div class="countdown">
+        <h2>December 25th</h2>
+        <p id="countdown3"></p>
+    </div>
+
+    <div class="countdown">
+        <h2>January 9th</h2>
+        <p id="countdown4"></p>
+    </div>
+
+    <script>
+        // Countdown function
+        function countdown(date, elementId) {
+            const countdownDate = new Date(date).getTime();
+
+            // Update the countdown every 1 second
+            const countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = countdownDate - now;
+
+                // Calculate days, hours, minutes, and seconds
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Display the countdown
+                document.getElementById(elementId).innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+                // If the countdown is finished, clear the interval
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById(elementId).innerHTML = "EXPIRED";
+                }
+            }, 1000);
+        }
+
+        // Start the countdowns
+        countdown("Dec 20, 2023 00:00:00", "countdown1");
+        countdown("Dec 24, 2023 00:00:00", "countdown2");
+        countdown("Dec 25, 2023 00:00:00", "countdown3");
+        countdown("Jan 9, 2024 00:00:00", "countdown4");
+    </script>
+</body>
+</html>
