@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap">
+<style>
+  body {
+    font-family: 'Oswald', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+    color: #eee;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .button {
+    width: 200px;
+    height: 200px;
+    margin-bottom: 20px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #eee;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .button img {
+    max-width: 80%;
+    max-height: 80%;
+    margin-bottom: 10px;
+  }
+
+  .add-button {
+    width: 100px;
+    height: 100px;
+    background-color: rgba(40, 167, 69, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: #eee;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .add-button:hover {
+    background-color: rgba(33, 136, 56, 0.7);
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  .modal-content {
+    background-color: #333;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    border-radius: 10px;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #eee;
+  }
+
+  input[type="submit"] {
+    width: 100%;
+    background-color: rgba(40, 167, 69, 0.7);
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  input[type="submit"]:hover {
+    background-color: rgba(33, 136, 56, 0.7);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="button-container" id="buttonContainer">
+    <button class="add-button" onclick="openModal()">+</button>
+  </div>
+</div>
+
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <form id="addButtonForm">
+      <label for="buttonName">Button Name:</label>
+      <input type="text" id="buttonName" name="buttonName" required><br>
+      <label for="buttonURL">URL:</label>
+      <input type="text" id="buttonURL" name="buttonURL" required><br>
+      <label for="buttonImage">Image URL:</label>
+      <input type="text" id="buttonImage" name="buttonImage" required><br>
+      <input type="submit" value="Add Button">
+    </form>
+  </div>
+</div>
+
+<script>
+  function openModal() {
+    document.getElementById("myModal").style.display = "block";
+  }
+
+  function closeModal() {
+    document.getElementById("myModal").style.display = "none";
+  }
+
+  document.getElementById("addButtonForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    var buttonName = document.getElementById("buttonName").value;
+    var buttonURL = document.getElementById("buttonURL").value;
+    var buttonImage = document.getElementById("buttonImage").value;
+
+    var buttonContainer = document.getElementById("buttonContainer");
+    var newButton = document.createElement("a");
+    newButton.setAttribute("href", buttonURL);
+    newButton.setAttribute("target", "_blank");
+    newButton.setAttribute("class", "button");
+    var image = document.createElement("img");
+    image.setAttribute("src", buttonImage);
+    image.setAttribute("alt", buttonName);
+    var textNode = document.createTextNode(buttonName);
+    newButton.appendChild(image);
+    newButton.appendChild(textNode);
+    buttonContainer.insertBefore(newButton, buttonContainer.firstChild);
+
+    closeModal();
+    document.getElementById("addButtonForm").reset();
+  });
+</script>
+
+</body>
+</html>
