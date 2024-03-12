@@ -1,0 +1,79 @@
+<script>
+  // Function to save button data to localStorage
+  function saveButtonsToLocalStorage() {
+    var buttonContainer = document.getElementById("buttonContainer");
+    var buttons = buttonContainer.querySelectorAll(".button");
+    var buttonData = [];
+
+    buttons.forEach(function(button) {
+      var buttonInfo = {
+        name: button.querySelector("img").alt,
+        url: button.getAttribute("href"),
+        image: button.querySelector("img").src
+      };
+      buttonData.push(buttonInfo);
+    });
+
+    localStorage.setItem("buttons", JSON.stringify(buttonData));
+  }
+
+  // Function to load buttons from localStorage
+  function loadButtonsFromLocalStorage() {
+    var buttonContainer = document.getElementById("buttonContainer");
+    var buttons = JSON.parse(localStorage.getItem("buttons")) || [];
+
+    buttons.forEach(function(buttonInfo) {
+      var newButton = document.createElement("a");
+      newButton.setAttribute("href", buttonInfo.url);
+      newButton.setAttribute("target", "_blank");
+      newButton.setAttribute("class", "button");
+      var image = document.createElement("img");
+      image.setAttribute("src", buttonInfo.image);
+      image.setAttribute("alt", buttonInfo.name);
+      var textNode = document.createTextNode(buttonInfo.name);
+      newButton.appendChild(image);
+      newButton.appendChild(textNode);
+      buttonContainer.insertBefore(newButton, buttonContainer.firstChild);
+    });
+  }
+
+  // Add event listener to the form for adding buttons
+  document.getElementById("addButtonForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    var buttonName = document.getElementById("buttonName").value;
+    var buttonURL = document.getElementById("buttonURL").value;
+    var buttonImage = document.getElementById("buttonImage").value;
+
+    var buttonContainer = document.getElementById("buttonContainer");
+    var newButton = document.createElement("a");
+    newButton.setAttribute("href", buttonURL);
+    newButton.setAttribute("target", "_blank");
+    newButton.setAttribute("class", "button");
+    var image = document.createElement("img");
+    image.setAttribute("src", buttonImage);
+    image.setAttribute("alt", buttonName);
+    var textNode = document.createTextNode(buttonName);
+    newButton.appendChild(image);
+    newButton.appendChild(textNode);
+    buttonContainer.insertBefore(newButton, buttonContainer.firstChild);
+
+    // Save buttons to localStorage
+    saveButtonsToLocalStorage();
+
+    closeModal();
+    document.getElementById("addButtonForm").reset();
+  });
+
+  // Call function to load buttons from localStorage when the page loads
+  window.onload = loadButtonsFromLocalStorage;
+
+  // Function to open the modal
+  function openModal() {
+    document.getElementById("myModal").style.display = "block";
+  }
+
+  // Function to close the modal
+  function closeModal() {
+    document.getElementById("myModal").style.display = "none";
+  }
+</script>
