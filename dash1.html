@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riverside Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap">
+<style>
+  /* Your existing CSS styles */
+  body {
+    font-family: 'Oswald', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+    color: #eee;
+  }
+
+  /* Additional style for logo */
+  #logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 100px; /* Adjust width as needed */
+    height: auto; /* Maintain aspect ratio */
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    position: relative; /* Ensure relative positioning for logo */
+  }
+
+  /* Your existing CSS styles */
+</style>
+</head>
+<body>
+
+<!-- Logo -->
+<img id="logo" src="YOUR_LOGO_URL_HERE" alt="Logo">
+
+<div class="container">
+  <div class="button-container" id="buttonContainer">
+    <button class="add-button" onclick="openModal()">+</button>
+  </div>
+</div>
+
+<!-- Modal HTML -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <form id="addButtonForm">
+      <label for="buttonName">Button Name:</label>
+      <input type="text" id="buttonName" name="buttonName" required><br>
+      <label for="buttonURL">URL:</label>
+      <input type="text" id="buttonURL" name="buttonURL" required><br>
+      <label for="buttonImage">Image URL:</label>
+      <input type="text" id="buttonImage" name="buttonImage" required><br>
+      <input type="submit" value="Add Button">
+    </form>
+  </div>
+</div>
+
+<script>
+  // Your existing JavaScript code
+</script>
+
+</body>
+</html>
