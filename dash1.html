@@ -204,6 +204,11 @@
     });
   }
 
+  // Call function to load buttons from localStorage when the DOM content is loaded
+  document.addEventListener("DOMContentLoaded", function() {
+    loadButtonsFromLocalStorage();
+  });
+
   // Add event listener to the form for adding buttons
   document.getElementById("addButtonForm").addEventListener("submit", function(event) {
     event.preventDefault();
@@ -240,12 +245,8 @@
   function closeModal() {
     document.getElementById("myModal").style.display = "none";
   }
-
-  // Call function to load buttons from localStorage when the DOM content is loaded
-  document.addEventListener("DOMContentLoaded", function() {
-    loadButtonsFromLocalStorage();
-  });
 </script>
+
 
 </body>
 </html>
