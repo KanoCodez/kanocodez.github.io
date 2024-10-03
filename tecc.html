@@ -148,6 +148,17 @@
             min-height: 50px;
             margin-top: 10px;
         }
+        .signal-100-banner {
+            background-color: #ff0000;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+            display: none;
+        }
+        .signal-100-active {
+            background-color: #ff6b6b;
+        }
     </style>
 </head>
 <body>
@@ -155,11 +166,13 @@
         <img src="https://i.ibb.co/Q8WcFQY/tecc.png" alt="TX:RP Logo">
         <h1>TX:RP Emergency Communications Center</h1>
     </div>
+    <div id="signal100Banner" class="signal-100-banner">SIGNAL 100 IS IN EFFECT</div>
     <div class="content">
         <div class="panel">
             <h2>Calls</h2>
             <button class="red" onclick="clearCalls()">Clear All Calls</button>
             <button class="green" onclick="showModal('call')">Make Call</button>
+            <button id="signal100Button" class="yellow" onclick="toggleSignal100()">Signal 100</button>
             <div id="calls-list" class="list"></div>
         </div>
         <div class="panel">
@@ -188,13 +201,16 @@
     </div>
 
     <audio id="panicSound" src="https://dl.sndup.net/99yjh/Motorola%20Radio%20Tones%20(1)-[AudioTrimmercom].mp3"></audio>
+    <audio id="signal100Sound" src="https://www.myinstants.com/media/sounds/sinal-100.mp3"></audio>
 
     <script>
         let calls = [];
         let units = [];
         let bolos = [];
         let selectedCall = null;
+        let isSignal100Active = false;
         const panicSound = document.getElementById('panicSound');
+        const signal100Sound = document.getElementById('signal100Sound');
         const modal = document.getElementById('inputModal');
         let currentModalType = '';
 
@@ -380,6 +396,21 @@
                 unit.status = 'attached';
                 updateCallsList();
                 updateUnitsList();
+            }
+        }
+
+        function toggleSignal100() {
+            isSignal100Active = !isSignal100Active;
+            const banner = document.getElementById('signal100Banner');
+            const button = document.getElementById('signal100Button');
+            
+            if (isSignal100Active) {
+                banner.style.display = 'block';
+                button.classList.add('signal-100-active');
+                signal100Sound.play();
+            } else {
+                banner.style.display = 'none';
+                button.classList.remove('signal-100-active');
             }
         }
 
