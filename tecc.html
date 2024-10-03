@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TX:RP Emergency Communications Center</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-image: url('https://i.ibb.co/wzWKyGj/teccbac.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .banner {
+            background-color: #000000;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+        }
+        .banner img {
+            height: 40px;
+            margin-right: 20px;
+        }
+        .banner h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .panel {
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        .chat-window {
+            width: 300px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-left: 1px solid #ddd;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .red { background-color: #ff6b6b; color: white; }
+        .green { background-color: #51cf66; color: white; }
+        .yellow { background-color: #fcc419; color: black; }
+        .blue { background-color: #339af0; color: white; }
+        .list {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .list-item {
+            cursor: pointer;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: rgba(248, 249, 250, 0.8);
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            border-bottom: 1px solid #ddd;
+        }
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        .list-item:hover {
+            background-color: rgba(233, 236, 239, 0.8);
+        }
+        .panic {
+            animation: panic 0.5s infinite;
+        }
+        @keyframes panic {
+            0% { background-color: rgba(255, 107, 107, 0.8); }
+            50% { background-color: rgba(51, 154, 240, 0.8); }
+            100% { background-color: rgba(255, 107, 107, 0.8); }
+        }
+        .options {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+        }
+        .options button {
+            margin-left: 5px;
+            font-size: 0.8em;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 5px;
+            margin: 5px 0 15px 0;
+        }
+        .modal-content button {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <img src="https://i.ibb.co/Q8WcFQY/tecc.png" alt="TX:RP Logo">
+        <h1>TX:RP Emergency Communications Center</h1>
+    </div>
+    <div class="content">
+        <div class="panel">
+            <h2>Calls</h2>
+            <button class="red" onclick="clearCalls()">Clear All Calls</button>
+            <button class="green" onclick="showModal('call')">Make Call</button>
+            <div id="calls-list" class="list"></div>
+        </div>
+        <div class="panel">
+            <h2>Units</h2>
+            <button class="red" onclick="clearUnits()">Clear All Units</button>
+            <button class="green" onclick="showModal('unit')">Make Unit</button>
+            <div id="units-list" class="list"></div>
+        </div>
+        <div class="chat-window">
+            <iframe src="https://hack.chat/?texasdispatche" style="width:100%;height:100%;border:none;background: transparent;" allowtransparency="true"></iframe>
+        </div>
+    </div>
+
+    <div id="inputModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle"></h3>
+            <div id="modalInputs"></div>
+            <button class="green" onclick="submitModal()">Submit</button>
+        </div>
+    </div>
+
+    <audio id="panicSound" src="https://dl.sndup.net/99yjh/Motorola%20Radio%20Tones%20(1)-[AudioTrimmercom].mp3"></audio>
+
+    <script>
+        let calls = [];
+        let units = [];
+        let selectedCall = null;
+        const panicSound = document.getElementById('panicSound');
+        const modal = document.getElementById('inputModal');
+        let currentModalType = '';
+
+        function clearCalls() {
+            calls = [];
+            updateCallsList();
+        }
+
+        function clearUnits() {
+            units = [];
+            updateUnitsList();
+        }
+
+        function showModal(type) {
+            currentModalType = type;
+            const title = document.getElementById('modalTitle');
+            const inputs = document.getElementById('modalInputs');
+            inputs.innerHTML = '';
+
+            if (type === 'call') {
+                title.textContent = 'Make Call';
+                inputs.innerHTML = `
+                    <input type="text" id="callLocation" placeholder="Location">
+                    <input type="text" id="callTitle" placeholder="Title">
+                    <input type="text" id="callDescription" placeholder="Description">
+                `;
+            } else if (type === 'unit') {
+                title.textContent = 'Make Unit';
+                inputs.innerHTML = `
+                    <input type="text" id="unitUsername" placeholder="Roblox Username">
+                    <input type="text" id="unitCallsign" placeholder="Callsign">
+                `;
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function submitModal() {
+            if (currentModalType === 'call') {
+                const location = document.getElementById('callLocation').value;
+                const title = document.getElementById('callTitle').value;
+                const description = document.getElementById('callDescription').value;
+                calls.push({ location, title, description, status: 'active' });
+                updateCallsList();
+            } else if (currentModalType === 'unit') {
+                const username = document.getElementById('unitUsername').value;
+                const callsign = document.getElementById('unitCallsign').value;
+                units.push({ username, callsign, status: '10-8' });
+                updateUnitsList();
+            }
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function updateCallsList() {
+            const list = document.getElementById('calls-list');
+            list.innerHTML = '';
+            calls.forEach((call, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                if (call.status === 'panic') {
+                    item.classList.add('panic');
+                }
+                item.innerHTML = `
+                    <strong>${call.title}</strong> - ${call.location}
+                    <br>${call.description}
+                    <div class="options">
+                        <button class="red" onclick="panicCall(${index})">PANIC</button>
+                        <button class="green" onclick="code4Call(${index})">Code 4</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function updateUnitsList() {
+            const list = document.getElementById('units-list');
+            list.innerHTML = '';
+            units.forEach((unit, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <strong>${unit.callsign}</strong> (${unit.username}) - ${unit.status}
+                    <div class="options">
+                        <button class="yellow" onclick="setUnitStatus(${index}, '10-6')">10-6</button>
+                        <button class="red" onclick="setUnitStatus(${index}, '10-7')">10-7</button>
+                        <button class="green" onclick="setUnitStatus(${index}, '10-8')">10-8</button>
+                        <button class="blue" onclick="attachUnit(${index})">Attach</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function panicCall(index) {
+            calls[index].status = 'panic';
+            units.forEach(unit => {
+                if (unit.status === '10-8') {
+                    unit.status = 'attached';
+                }
+            });
+            updateCallsList();
+            updateUnitsList();
+            panicSound.play();
+        }
+
+        function code4Call(index) {
+            calls.splice(index, 1);
+            units.forEach(unit => {
+                if (unit.status === 'attached') {
+                    unit.status = '10-8';
+                }
+            });
+            updateCallsList();
+            updateUnitsList();
+        }
+
+        function setUnitStatus(index, status) {
+            units[index].status = status;
+            if (status === '10-7') {
+                units.splice(index, 1);
+            }
+            updateUnitsList();
+        }
+
+        function attachUnit(index) {
+            if (selectedCall !== null) {
+                units[index].status = 'attached';
+                updateUnitsList();
+            } else {
+                alert("Please select a call first.");
+            }
+        }
+
+        updateCallsList();
+        updateUnitsList();
+    </script>
+</body>
+</html>
