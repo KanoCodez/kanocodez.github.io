@@ -140,6 +140,14 @@
         .modal-content button {
             width: 100%;
         }
+        .draggable {
+            cursor: move;
+        }
+        .droppable {
+            border: 2px dashed #aaa;
+            min-height: 50px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -160,6 +168,12 @@
             <button class="green" onclick="showModal('unit')">Make Unit</button>
             <div id="units-list" class="list"></div>
         </div>
+        <div class="panel">
+            <h2>BOLOs</h2>
+            <button class="red" onclick="clearBolos()">Clear All BOLOs</button>
+            <button class="green" onclick="showModal('bolo')">Make BOLO</button>
+            <div id="bolos-list" class="list"></div>
+        </div>
         <div class="chat-window">
             <iframe src="https://hack.chat/?texasdispatche" style="width:100%;height:100%;border:none;background: transparent;" allowtransparency="true"></iframe>
         </div>
@@ -178,6 +192,7 @@
     <script>
         let calls = [];
         let units = [];
+        let bolos = [];
         let selectedCall = null;
         const panicSound = document.getElementById('panicSound');
         const modal = document.getElementById('inputModal');
@@ -191,6 +206,11 @@
         function clearUnits() {
             units = [];
             updateUnitsList();
+        }
+
+        function clearBolos() {
+            bolos = [];
+            updateBolosList();
         }
 
         function showModal(type) {
@@ -212,6 +232,13 @@
                     <input type="text" id="unitUsername" placeholder="Roblox Username">
                     <input type="text" id="unitCallsign" placeholder="Callsign">
                 `;
+            } else if (type === 'bolo') {
+                title.textContent = 'Make BOLO';
+                inputs.innerHTML = `
+                    <input type="text" id="boloVehicle" placeholder="Vehicle Model">
+                    <input type="text" id="boloPlate" placeholder="License Plate">
+                    <input type="text" id="boloReason" placeholder="Reason">
+                `;
             }
 
             modal.style.display = 'block';
@@ -222,13 +249,19 @@
                 const location = document.getElementById('callLocation').value;
                 const title = document.getElementById('callTitle').value;
                 const description = document.getElementById('callDescription').value;
-                calls.push({ location, title, description, status: 'active' });
+                calls.push({ location, title, description, status: 'active', attachedUnits: [] });
                 updateCallsList();
             } else if (currentModalType === 'unit') {
                 const username = document.getElementById('unitUsername').value;
                 const callsign = document.getElementById('unitCallsign').value;
                 units.push({ username, callsign, status: '10-8' });
                 updateUnitsList();
+            } else if (currentModalType === 'bolo') {
+                const vehicle = document.getElementById('boloVehicle').value;
+                const plate = document.getElementById('boloPlate').value;
+                const reason = document.getElementById('boloReason').value;
+                bolos.push({ vehicle, plate, reason });
+                updateBolosList();
             }
             modal.style.display = 'none';
         }
@@ -255,6 +288,9 @@
                         <button class="red" onclick="panicCall(${index})">PANIC</button>
                         <button class="green" onclick="code4Call(${index})">Code 4</button>
                     </div>
+                    <div class="droppable" ondrop="drop(event, ${index})" ondragover="allowDrop(event)">
+                        <strong>Attached Units:</strong> ${call.attachedUnits.map(u => u.callsign).join(', ')}
+                    </div>
                 `;
                 list.appendChild(item);
             });
@@ -265,14 +301,32 @@
             list.innerHTML = '';
             units.forEach((unit, index) => {
                 const item = document.createElement('div');
-                item.className = 'list-item';
+                item.className = 'list-item draggable';
+                item.draggable = true;
+                item.ondragstart = function(event) { drag(event, index); };
                 item.innerHTML = `
                     <strong>${unit.callsign}</strong> (${unit.username}) - ${unit.status}
                     <div class="options">
                         <button class="yellow" onclick="setUnitStatus(${index}, '10-6')">10-6</button>
                         <button class="red" onclick="setUnitStatus(${index}, '10-7')">10-7</button>
                         <button class="green" onclick="setUnitStatus(${index}, '10-8')">10-8</button>
-                        <button class="blue" onclick="attachUnit(${index})">Attach</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function updateBolosList() {
+            const list = document.getElementById('bolos-list');
+            list.innerHTML = '';
+            bolos.forEach((bolo, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <strong>${bolo.vehicle}</strong> - ${bolo.plate}
+                    <br>${bolo.reason}
+                    <div class="options">
+                        <button class="red" onclick="removeBolo(${index})">Remove</button>
                     </div>
                 `;
                 list.appendChild(item);
@@ -281,23 +335,15 @@
 
         function panicCall(index) {
             calls[index].status = 'panic';
-            units.forEach(unit => {
-                if (unit.status === '10-8') {
-                    unit.status = 'attached';
-                }
-            });
             updateCallsList();
-            updateUnitsList();
             panicSound.play();
         }
 
         function code4Call(index) {
-            calls.splice(index, 1);
-            units.forEach(unit => {
-                if (unit.status === 'attached') {
-                    unit.status = '10-8';
-                }
+            calls[index].attachedUnits.forEach(unit => {
+                unit.status = '10-8';
             });
+            calls.splice(index, 1);
             updateCallsList();
             updateUnitsList();
         }
@@ -310,17 +356,36 @@
             updateUnitsList();
         }
 
-        function attachUnit(index) {
-            if (selectedCall !== null) {
-                units[index].status = 'attached';
+        function removeBolo(index) {
+            bolos.splice(index, 1);
+            updateBolosList();
+        }
+
+        function drag(event, index) {
+            event.dataTransfer.setData("text/plain", index);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event, callIndex) {
+            event.preventDefault();
+            const unitIndex = event.dataTransfer.getData("text");
+            const unit = units[unitIndex];
+            const call = calls[callIndex];
+            
+            if (!call.attachedUnits.includes(unit)) {
+                call.attachedUnits.push(unit);
+                unit.status = 'attached';
+                updateCallsList();
                 updateUnitsList();
-            } else {
-                alert("Please select a call first.");
             }
         }
 
         updateCallsList();
         updateUnitsList();
+        updateBolosList();
     </script>
 </body>
 </html>
