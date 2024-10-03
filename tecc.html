@@ -23,6 +23,7 @@
             padding: 10px 20px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
         }
         .banner img {
             height: 40px;
@@ -31,6 +32,10 @@
         .banner h1 {
             margin: 0;
             font-size: 1.5em;
+        }
+        .time-display {
+            font-size: 1.2em;
+            font-weight: bold;
         }
         .content {
             display: flex;
@@ -158,8 +163,11 @@
 </head>
 <body>
     <div class="banner">
-        <img src="https://i.ibb.co/Q8WcFQY/tecc.png" alt="TX:RP Logo">
-        <h1>TX:RP Emergency Communications Center</h1>
+        <div style="display: flex; align-items: center;">
+            <img src="https://i.ibb.co/Q8WcFQY/tecc.png" alt="TX:RP Logo">
+            <h1>TX:RP Emergency Communications Center</h1>
+        </div>
+        <div class="time-display" id="timeDisplay"></div>
     </div>
     <div id="signal100Banner" class="signal-100-banner">SIGNAL 100 IS IN EFFECT</div>
     <div class="content">
@@ -205,6 +213,15 @@
         const signal100Sound = document.getElementById('signal100Sound');
         const modal = document.getElementById('inputModal');
         let currentModalType = '';
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', second: '2-digit' });
+            document.getElementById('timeDisplay').textContent = timeString;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
 
         function clearCalls() {
             calls = [];
